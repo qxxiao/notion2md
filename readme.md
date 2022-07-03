@@ -34,3 +34,4 @@ BTW using a single page notion app can also output all md files, which is actual
 
 ## notes  
 - only download files in notion, external links will be ignored.
+- for database, only download pages in the database.

@@ -20,7 +20,8 @@ enum_color = {
     'gray': '#f1f1ef', 'gray_background': '#f1f1ef',
     'brown': '#9e6b53', 'brown_background': '#f4eeee',
     'orange': '#da720f', 'orange_background': '#faecdd',
-    'yellow': '#dab071', 'yellow_background': '#fbf3da',
+    # #fefe00 in md; #fbf3da in notion [yellow_background]
+    'yellow': '#dab071', 'yellow_background': '#fefe00',
     'green': '#458361', 'green_background': '#edf3ec',
     'blue': '#337ea9', 'blue_background': '#e7f3f8',
     'purple': '#9065b0', 'purple_background': '#f7f3f8',
@@ -50,14 +51,14 @@ def md_render(rich_text: list):
         # common annotations
         if chunk['annotations']['code']:
             cur = mapper["c"].format(text=cur)
-        if chunk['annotations']['underline']:
-            cur = mapper["u"].format(text=cur)
         if chunk['annotations']['strikethrough']:
             cur = mapper["s"].format(text=cur)
         if chunk['annotations']['bold']:
             cur = mapper["b"].format(text=cur)
         if chunk['annotations']['italic']:
             cur = mapper["i"].format(text=cur)
+        if chunk['annotations']['underline']:
+            cur = mapper["u"].format(text=cur)
         color = chunk['annotations']['color']
         if color != "default":
             if color.endswith("background"):
@@ -101,14 +102,14 @@ def html_render(rich_text: list):
         #     pass
         if chunk['annotations']['code']:
             cur = "<code>{}</code>".format(cur)
-        if chunk['annotations']['underline']:
-            cur = "<u>{}</u>".format(cur)
         if chunk['annotations']['strikethrough']:
             cur = "<del>{}</del>".format(cur)
         if chunk['annotations']['bold']:
             cur = "<strong>{}</strong>".format(cur)
         if chunk['annotations']['italic']:
             cur = "<em>{}</em>".format(cur)
+        if chunk['annotations']['underline']:
+            cur = "<u>{}</u>".format(cur)
         color = chunk['annotations']['color']
         if color != "default":
             if color.endswith("background"):

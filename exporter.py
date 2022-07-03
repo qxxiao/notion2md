@@ -10,13 +10,13 @@ from utils import file as _
 
 # todo Properties marked with an * are available to integrations with any capabilities.
 # todo 需要打开集成的所有的权限
-token = os.environ["NOTION_TOKEN"]
+token = os.environ.get("NOTION_TOKEN", None)
 while token is None:
     token = input("NOTION_TOKEN is not set, input:\n")
 
-file = os.environ["NOTION_PAGES"]
+file = os.environ.get("NOTION_PAGES", None)
 while file is None:
-    file = input("NOTION_PAGES is not set, input():\n")
+    file = input("NOTION_PAGES is not set, input:\n")
 client_api.Notion = client_api.ClientAPI(Client(auth=token))
 
 file_id = file.split("/")[-1]

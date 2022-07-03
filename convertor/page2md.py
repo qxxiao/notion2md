@@ -5,6 +5,7 @@ from traitlets import default
 
 from blocks import client_api
 from blocks.block import Block
+from blocks.database import Database
 from blocks.page import Page
 from text.web import getUrlInfo
 from text.div import get_div, get_bmDiv
@@ -126,6 +127,7 @@ def transToggle(block: Block, level: int = 0):
     fmt = """
 <details class="markdown">
 <summary><b>{title}</b></summary>
+
 {content}
 </details>
 """
@@ -186,34 +188,42 @@ def transTable(block: Block):
 
 def downloadFile(url, file_type: str):
     """
-    file_type: image/file
+    file_type: image/file 用来标识文件的前缀
     返回下载的文件的相对路径(执行路径)
     """
-    res = requests.get(url, allow_redirects=True)
-    if res.status_code != 200:
-        print("download file error: {}".format(url))
-        return
     if file_type == "image":
         file.image_count += 1
     else:
         file.file_count += 1
-
+    # 不带后缀文件名
+    static_dir = os.path.join(file.cur_dir, "static")
     filename = file_type + \
         "_{}".format(file.image_count if file_type ==
                      "image" else file.file_count)
-    if file_type == "image":
-        filename += ".png"
-    elif file_type == "video":
-        filename += ".mp4"
-    else:
-        filename += ".pdf"
-    static_dir = os.path.join(file.cur_dir, "static")
     if not os.path.exists(static_dir):
         os.mkdir(static_dir)
+    filelist = os.listdir(static_dir)
+    for name in filelist:
+        if name.startswith(filename+'.'):
+            return "./static/" + name
+    # 下载文件
+    try:
+        res = requests.get(url, allow_redirects=True, timeout=(1, 5))
+    except:
+        print("download file error: {}".format(url))
+        return ""
+    # 添加文件后缀
+    try:
+        ftype = res.headers['Content-Type'].split(';')[0].split(
+            '/')[1].split('+')[0].split('.')[-1].split('-')[-1]
+        filename += "." + ftype
+    except:
+        filename += ".file"
+    # ftype = url.split("?")[-2].split(".")[-1] # ?查询字符串
     filepath = os.path.join(static_dir, filename)
     with open(filepath, "wb") as f:
         f.write(res.content)
-    return filepath
+    return "./static/" + filename
 
 
 # type = img
@@ -234,22 +244,24 @@ def transImage(block: Block):
 # 兼容 嵌入的视频
 def transVideo(block: Block):
     vd = """
-<video width="720" height="450" preload="none" poster="" controls>
+<video width="100%" preload="none" poster="" controls>
     <source src="{url}" type="video/mp4">
     <source src="{url}" type="video/webm">
     <source src="{url}" type="video/ogg" />
     <p>Your browser doesn't support HTML5 video. Here is a <a href="{url}">link to the video</a> instead.</p>
 </video>
 """
+    # width="720" height="500" youtube
+    # width="720" height="580" bili
     iframe = """
-<center><iframe width="720" height="450" src="{url}" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></center>
+<center><iframe width="100%" {height} src="{url}" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></center>
 """
     video = block.Video
     url: str = video['url']
     if video['external'] == True:
         if url.startswith("https://www.youtube.com/watch?v="):
             url = url.replace("watch?v=", "embed/")
-            return iframe.format(url=url)
+            return iframe.format(height='height="500"', url=url)
     # notion file类型, 在 file.cur_dir 下保存文件
     filepath = downloadFile(url, "video")
     return vd.format(url=filepath)
@@ -271,8 +283,9 @@ def transChildPageOrLinkToPage(block: Block):
     if os.path.exists(file.cur_dir) is False:
         os.makedirs(file.cur_dir)
     page2md(page)
+    # use relative path
     link = "\n[{title}]({url})\n".format(
-        title=page.title, url=os.path.join(file.cur_dir, page.title + ".md"))
+        title=page.title, url=os.path.join("./subpages", page.title + ".md"))
     # todo 这里改回来
     file.cur_dir = os.path.dirname(file.cur_dir)
     return link
@@ -297,25 +310,43 @@ def transBookmark(block: Block):
 
 
 def transEmbed(block: Block):
+    # width="720" height="450"
     fmt = """
-<center><iframe width="720" height="450" src="{url}" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></center>
+<center><iframe width="100%" {height} src="{url}" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></center>
 """
     # embed 含有多种类型的嵌入，比如 bilibili, gist, pdfs...
     # youtube 在 notion直接使用 video格式链接
     embed = block.Embed
     # case : https://player.bilibili.com/player.html?aid=37634220&bvid=BV1vt411S7ou&cid=66164724&page=1&high_quality=1
     if embed['url'].startswith("https://player.bilibili.com"):
-        return fmt.format(url=embed['url'])
+        return fmt.format(height='height="570"', url=embed['url'])
     return """
     [{title}]({url})
     """.format(title=embed['url'], url=embed['url'])
 
 
-# todo
-# type = syncedblock 同步块 忽略
+# 处理 Child database blocks
+def transChildDatabase(block: Block):
+    # todo 应该在获取 block时加入 cache, block.children中也要加入 cache
+    database: Database = client_api.Notion.getDatabase(block.id)
+    res = ""
+    for page in database.children():
+        # todo 注意写入文件时，先改变file.cur_dir
+        file.cur_dir = os.path.join(file.cur_dir, "subpages")
+        # 创建子页面文件夹
+        if os.path.exists(file.cur_dir) is False:
+            os.makedirs(file.cur_dir)
+        page2md(page)
+        # use relative path
+        link = "\n[{title}]({url})  \n".format(
+            title=page.title, url=os.path.join("./subpages", page.title + ".md"))
+        # todo 这里改回来
+        file.cur_dir = os.path.dirname(file.cur_dir)
+        res += link
+    return res
 
 # todo
-# 处理 Child database blocks
+# type = syncedblock 同步块 忽略
 
 # todo
 # type = Column List and Column Blocks
@@ -327,7 +358,7 @@ def block2md(block: Block, level: int = 0) -> str:
         return blockmd
     if block.type == "heading_1" or block.type == "heading_2" or block.type == "heading_3":
         header = block.Header
-        blockmd = header['hashTag'] + ' ' + header['mdtext'] + '\n'
+        blockmd = '\n' + header['hashTag'] + ' ' + header['mdtext'] + '\n'
     elif block.type == "paragraph":
         blockmd = transParagraph(block, level)
     elif block.type == "bulleted_list_item":
@@ -363,7 +394,7 @@ def block2md(block: Block, level: int = 0) -> str:
     elif block.type == "divider":
         blockmd = transDivider(block)
     elif block.type == "child_database":
-        pass
+        blockmd = transChildDatabase(block)
     elif block.type == "column_list":
         pass
     else:
@@ -407,7 +438,7 @@ def get_page_meta(page: Page):
             meta["icon"] = filepath
 
     # 查询额外信息 database page
-    if block.parent['type'] == "database":
+    if block.parent['type'] == "database_id":
         for prop in page.prop:
             # multi-select
             if ['tag', 'tags', 'Tag', 'Tags', 'TAGS'].count(prop) > 0:
@@ -466,6 +497,7 @@ url: {url}
     # ! 注意， file.cur_dir 由调用者处理，首页默认在  ./notion2md_files
     if os.path.exists(file.cur_dir) is False:
         os.makedirs(file.cur_dir)
+    # filepath = filepath.encode('utf-8')
     with open(filepath, 'wt') as f:
         f.write(mdfile)
     print("\033[1;33m导出页面: ", title, "完成\033[0m")

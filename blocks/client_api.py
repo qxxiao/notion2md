@@ -106,7 +106,7 @@ class ClientAPI():
         # title, rich_text, relation and people property
         # api 返回分页列表, 只返回第一页内容
         if property['type'] == 'property_item' and value['type'] == 'rich_text':
-            return "".join([t["plain_text"] for t in property["results"]])
+            return "".join([t['rich_text']["plain_text"] for t in property["results"]])
         return None
 
 

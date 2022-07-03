@@ -11,11 +11,15 @@ def getUrlInfo(url: str):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'
     }
-    response = requests.get(url, headers=headers)
+    title, description, icon = url.split(
+        '/')[2] if url.startswith('http') else "", "", ""
+    try:
+        response = requests.get(url, headers=headers, timeout=(1, 5))
+    except:
+        return title, description, icon
     response.encoding = 'utf-8'
     # 使用 bs4 模块解析 headers 返回 title, description, icon
     soup = BeautifulSoup(response.text, 'html.parser')
-    title, description, icon = "", "", ""
     try:
         title = soup.find('title').text
     except:
