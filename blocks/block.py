@@ -127,9 +127,9 @@ class Block(BasicBlock):
             # callout 中其余属性, 可以加上color背景色/主体的字体色
             # # emoji(默认), external(url), file(url, expire_time)
             'icon': {
-                # 如果是 file 不下载不关心其expire_time 使用默认图标即可
+                # !如果是 file 不下载使用默认图标
                 'type': self.type_config['icon']['type'],
-                'emoji': self.type_config['icon'].get('emoji', ""),
+                'emoji': self.type_config['icon'].get('emoji', "💡"),
                 'url': "" if self.type_config['icon']['type'] == "emoji" else self.type_config['icon'][self.type_config['icon']['type']]['url'],
                 # 是否是外链, emoji从emoji读取
                 'external': self.type_config['icon']['type'] == 'external',
@@ -236,7 +236,7 @@ class Block(BasicBlock):
         assert self.type == 'embed'
         return {
             'type': self.type,
-            'url': self.type_config['url'],
+            'url': self.type_config['url'],  # external
             'caption': self.type_config['caption'],  # []
         }
 
@@ -289,9 +289,9 @@ class Block(BasicBlock):
         }
 
     @property
-    def PDF(self):
+    def Pdf(self):
         """
-        使用 /Embed pdf类型会自动转为pdf block; 默认使用pdf会预览pdf
+        使用 /Embed pdf类型会自动转为pdf block预览pdf
         """
         assert self.type == 'pdf'
         # file object => file / external
@@ -299,12 +299,25 @@ class Block(BasicBlock):
             'type': self.type,  # fixed pdf
             'external': self.type_config['type'] == 'external',  # True/False
             'url': self.type_config[self.type_config['type']]['url'],
+            'caption': self.type_config['caption'],
+        }
+
+    @property
+    def Audio(self):
+        assert self.type == 'audio'
+        # file object => file / external
+        return {
+            'type': self.type,  # fixed audio
+            'external': self.type_config['type'] == 'external',  # True/False
+            'url': self.type_config[self.type_config['type']]['url'],
+            'caption': self.type_config['caption'],
         }
 
     @property
     def Bookmark(self):
         """
         普通链接，会获取标题等；与 pdf/file 类似
+        ! api 缺失块的颜色属性
         """
         assert self.type == 'bookmark'
         # file object => file / external

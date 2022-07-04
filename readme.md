@@ -4,6 +4,7 @@
 Convert multiple notion pages to markdown files and try to keep the formatting usable.
 
 ## Usage
+First download this repo, then follow 4 steps:
 
 1. Get Internal Integration Token  
    In [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations), create your workspace intergarions and get token, like `secret_...`
@@ -19,7 +20,7 @@ pip3 install notion-client
 export NOTION_TOKEN=your token 
 export NOTION_PAGES=your main page link
 ```
-you can select a seperate open page for downloading, and put others page links in this page. Then get this page link:  
+you can select a seperate open page for downloading, and put others page links in this page(use Notion: `/Link` command). Then get this page link:  
 ![](img/1.png)   
 **make sure you add the interation to your workspace and all your pages your will export.**
 

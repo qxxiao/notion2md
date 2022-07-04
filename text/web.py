@@ -14,7 +14,8 @@ def getUrlInfo(url: str):
     title, description, icon = url.split(
         '/')[2] if url.startswith('http') else "", "", ""
     try:
-        response = requests.get(url, headers=headers, timeout=(1, 5))
+        response = requests.get(url, headers=headers,
+                                allow_redirects=True, timeout=(3, 5))
     except:
         return title, description, icon
     response.encoding = 'utf-8'
