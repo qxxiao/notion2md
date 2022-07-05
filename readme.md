@@ -34,5 +34,6 @@ BTW using a single page notion app can also output all md files, which is actual
 
 
 ## notes  
+- **`multi-level list items`, `bookmarks`, etc. make synchronous network requests, which take longer than other blocks**.
 - only download files in notion, external links will be ignored.
 - for database, only download pages in the database.

@@ -51,7 +51,7 @@ class Block(BasicBlock):
 
     def children(self, page_size: int = 500, start_cursor: str = None):
         if not self.has_children:
-            return []  # todo 如果没有children，返回空列表, iterable
+            return []  # todo 如果没有children，返回空列表
         # if self.type == 'child_page' or self.type == 'child_database':
         #     assert cache.defaultCache.block(self.id) is not None
 

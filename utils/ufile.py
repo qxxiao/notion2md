@@ -50,19 +50,16 @@ def download_file():
         crt_dir_mtx.acquire()
         if not os.path.exists(static_dir):
             os.mkdir(static_dir)
-        else:
-            dirlist = os.listdir(static_dir)
-            for name in dirlist:
-                if name.startswith(f["filename"]):
-                    is_download = True
-                    break
+        # 判断文件是否存在
+        elif os.path.exists(os.path.join(static_dir, f["filename"])):
+            is_download = True
         crt_dir_mtx.release()
         if is_download:
             continue
         filepath = os.path.join(static_dir, f['filename'])
         try:
             res = requests.get(f['url'], stream=True,
-                               allow_redirects=True, timeout=(3, 5))
+                               allow_redirects=True, timeout=(5, 6))
             with open(filepath, "wb") as fd:
                 for chunk in res.iter_content(chunk_size=10240):
                     fd.write(chunk)

@@ -11,11 +11,12 @@ def getUrlInfo(url: str):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'
     }
-    title, description, icon = url.split(
-        '/')[2] if url.startswith('http') else "", "", ""
+    if url.strip() == "":
+        return "", "", ""
+    title, description, icon = url.split('/')[2], "", "🔖"
     try:
         response = requests.get(url, headers=headers,
-                                allow_redirects=True, timeout=(3, 5))
+                                allow_redirects=True, timeout=1.5)
     except:
         return title, description, icon
     response.encoding = 'utf-8'
@@ -38,7 +39,7 @@ def getUrlInfo(url: str):
             else:
                 icon = "/".join(url.split('/')[:-1] + [icon])
     except:
-        icon = "🔖"
+        pass
     return title, description, icon
 
 

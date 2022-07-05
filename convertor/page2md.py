@@ -1,4 +1,5 @@
 import os
+import time
 
 from blocks import client_api
 from blocks.block import Block
@@ -438,11 +439,13 @@ handlers = {
 
 
 def block2md(block: Block, level: int = 0) -> str:
+    global file_last_btype
     handle = handlers.get(block.type, None)
     blockmd = ""
     if handle is not None:
+        # start = time.time()*1000
         blockmd = handle(block, level)
-    # ---------------
+        # end = time.time()*1000
     if block.type == "numbered_list_item" or block.type == "bulleted_list_item" or block.type == "to_do":
         file_last_btype = 1
     else:
@@ -509,9 +512,17 @@ def get_page_meta(page: Page):
     return meta
 
 
+def _stop_download():
+    if ufile.cur_dir == os.curdir:
+        ufile.download_list.put(None)
+
+
 # page2md
 # or not return
 def page2md(page: Page) -> str:
+    global file_last_btype
+    assert client_api.Notion is not None
+    file_last_btype = 0
     md_header = """---
 title: '{title}'
 date: {date}
@@ -526,11 +537,13 @@ url: {url}
     digest = """{digest}
 <!-- more -->
 """
-    assert client_api.Notion is not None
-    file_last_btype = 0
-    """
-    将 page 转换为 md
-    """
+    fp = os.path.join(ufile.cur_dir, page.title+'.md')
+    if os.path.exists(fp):
+        local_time = time.strftime(
+            "%Y-%m-%d %H:%M:%S", time.localtime(os.stat(fp).st_ctime))
+        if local_time > page.Block().last_edited_time:
+            _stop_download()
+            return
     print("\033[1;32m正在导出页面: ", page.title, "......\033[0m")
     md = ''
     for block in page.children():
@@ -538,9 +551,7 @@ url: {url}
         # block.type == 'child_page' or block.type == 'link_to_page'已经在下面 block2md 中递归处理了
         md += block2md(block)
     ######################
-    # stop download(cur_dir == ".")
-    if ufile.cur_dir == os.curdir:
-        ufile.download_list.put(None)
+    _stop_download()
     # 获取页面的属性
     # title, description, cover, icon
     meta = get_page_meta(page)
@@ -550,13 +561,10 @@ url: {url}
         header += digest.format(digest=meta['desc'])
     mdfile = header + md
     # ! write to file
-    title = page.title
-    filepath = os.path.join(ufile.cur_dir, title+'.md')
     # ! 注意， ufile.cur_dir 由调用者处理，首页默认在  ./notion2md_files
     if os.path.exists(ufile.cur_dir) is False:
         os.makedirs(ufile.cur_dir)
-    # filepath = filepath.encode('utf-8')
-    with open(filepath, 'wt') as f:
+    with open(fp, 'wt') as f:
         f.write(mdfile)
-    print("\033[1;33m导出页面: ", title, "完成\033[0m")
+    print("\033[1;33m导出页面: ", page.title, "完成\033[0m")
     return mdfile
