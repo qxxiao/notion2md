@@ -4,7 +4,6 @@
 # description
 # is_inline
 
-from traitlets import default
 from text.md import plain_text
 from blocks import cache
 from blocks.page import Page

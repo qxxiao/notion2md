@@ -10,9 +10,11 @@ First download this repo, then follow 4 steps:
    In [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations), create your workspace intergarions and get token, like `secret_...`
 
 
-2. download notion_client:
+2. download notion_client and dependencies:
 ```python
 pip3 install notion-client
+pip3 install python-dateutil
+pip3 install bs4
 ```
 
 3. set env variable  
