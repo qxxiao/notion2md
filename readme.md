@@ -4,13 +4,12 @@
 Convert multiple notion pages to markdown files and try to keep the formatting usable.
 
 ## Usage
-First download this repo, then follow 4 steps:
-
-1. Get Internal Integration Token  
+don't need download repo, get your Token and export your page:
+1. get Internal Integration Token  
    In [https://www.notion.so/my-integrations](https://www.notion.so/my-integrations), create your workspace intergarions and get token, like `secret_...`
 
 
-2. download with pip3
+2. download package with pip3
 ```python
 pip3 install notion-md
 ```
@@ -21,7 +20,8 @@ export NOTION_TOKEN=your token
 export NOTION_PAGES=your main page link
 ```
 you can select a seperate open page for downloading, and put others page links in this page(use Notion: `/Link` command). Then get this page link:  
-![](img/1.png)   
+![](img/1.png)  
+
 **make sure you add the interation to your workspace and all your pages your will export.**
 
 
@@ -29,11 +29,10 @@ you can select a seperate open page for downloading, and put others page links i
 ```shell
 notion_md 
 ```
-pages are saved to notion2md_files dir, default only download files storaged in notion.
-BTW using a single page notion app can also output all md files, which is actually enough to use.
+pages are saved to **notion2md_files dir**, default only download files storaged in notion.
 
 ## surpported
-converting markdown files for [Gridea](https://gridea.dev/)-like blog side, supporting properties of notion database pages eg. Tags, Cover.
+export markdown files for [Gridea](https://gridea.dev/)-like blog side, supporting properties of notion database pages eg. Tags, Cover.
 - [x] normal block(header,list,code,quote,...)
 - [x] link page/sub page
 - [x] table

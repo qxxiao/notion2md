@@ -2,7 +2,7 @@
 
 from notion_client import Client
 
-from blocks.cache import defaultCache
+from blocks import cache
 from blocks.page import Page
 from blocks.block import Block
 from blocks.database import Database
@@ -35,20 +35,20 @@ class ClientAPI():
         获取 page
         同时会获取 page block, 确保加入缓存
         """
-        if defaultCache.page(page_id) is not None:
-            return defaultCache.page(page_id)
+        if cache.defaultCache.page(page_id) is not None:
+            return cache.defaultCache.page(page_id)
 
         pageRes = self.notion.pages.retrieve(page_id)  # page
         page = Page(pageRes['id'], pageRes['url'], pageRes['properties'],
                     pageRes['icon'], pageRes['cover'], pageRes['object'])
-        defaultCache.setPage(page.id, page)
+        cache.defaultCache.setPage(page.id, page)
 
-        if defaultCache.block(page_id) is None:
+        if cache.defaultCache.block(page_id) is None:
             blockRes = self.notion.blocks.retrieve(
                 page_id)  # block => for children
             block = Block(blockRes['id'], blockRes['parent'], blockRes['created_time'], blockRes['created_by'],
                           blockRes['last_edited_time'], blockRes['last_edited_by'], blockRes['type'], blockRes[blockRes['type']], blockRes['has_children'], blockRes['archived'], blockRes['object'])
-            defaultCache.setBlock(block.id, block)
+            cache.defaultCache.setBlock(block.id, block)
         return page
 
     def getBlock(self, block_id):
@@ -56,8 +56,8 @@ class ClientAPI():
         获取 block(包括page block, database block)
         会确保page block, database block 加入缓存
         """
-        if defaultCache.block(block_id) is not None:
-            return defaultCache.block(block_id)
+        if cache.defaultCache.block(block_id) is not None:
+            return cache.defaultCache.block(block_id)
 
         blockRes = self.notion.blocks.retrieve(
             block_id)  # block => for children
@@ -65,7 +65,7 @@ class ClientAPI():
                       blockRes['last_edited_time'], blockRes['last_edited_by'], blockRes['type'], blockRes[blockRes['type']], blockRes['has_children'], blockRes['archived'], blockRes['object'])
         # todo 检查，只有对页面/数据库 顶级block 加入缓存
         if block.type == 'child_page' or block.type == 'child_database':
-            defaultCache.setBlock(block.id, block)
+            cache.defaultCache.setBlock(block.id, block)
         return block
 
     def getDatabase(self, database_id):
@@ -73,20 +73,20 @@ class ClientAPI():
         获取 database
         会确保database block 加入缓存
         """
-        if defaultCache.database(database_id) is not None:
-            return defaultCache.database(database_id)
+        if cache.defaultCache.database(database_id) is not None:
+            return cache.defaultCache.database(database_id)
 
         databaseRes = self.notion.databases.retrieve(database_id)  # database
         database = Database(databaseRes['id'], databaseRes['url'], databaseRes['title'], databaseRes['properties'],
                             databaseRes['is_inline'], databaseRes['icon'], databaseRes['cover'], databaseRes['description'], databaseRes['object'])
-        defaultCache.setDatabase(database.id, database)
+        cache.defaultCache.setDatabase(database.id, database)
 
-        if defaultCache.block(database_id) is None:
+        if cache.defaultCache.block(database_id) is None:
             blockRes = self.notion.blocks.retrieve(
                 database_id)  # block => for children
             block = Block(blockRes['id'], blockRes['parent'], blockRes['created_time'], blockRes['created_by'],
                           blockRes['last_edited_time'], blockRes['last_edited_by'], blockRes['type'], blockRes[blockRes['type']], blockRes['has_children'], blockRes['archived'], blockRes['object'])
-            defaultCache.setBlock(block.id, block)
+            cache.defaultCache.setBlock(block.id, block)
         return database
 
     def getProperty(self, page_id, property_id):
