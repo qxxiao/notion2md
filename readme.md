@@ -22,7 +22,7 @@ export NOTION_PAGES=your main page link
 you can select a seperate open page for downloading, and put others page links in this page(use Notion: `/Link` command). Then get this page link:  
 ![](img/1.png)  
 
-**make sure you add the interation to your workspace and all your pages your will export.**
+**make sure you add the interation to your workspace and all your pages your would export.**
 
 
 4. download files use **notion_md** command:  
@@ -45,3 +45,4 @@ export markdown files for [Gridea](https://gridea.dev/)-like blog side, supporti
 - **`multi-level list items`, `bookmarks`, etc. make synchronous network requests, which take longer than other blocks**.
 - only download files in notion, external links will be ignored.
 - for database, only download pages in the database.
+- children blocks in callouts will be ignored, simple style is better.
