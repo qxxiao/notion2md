@@ -65,7 +65,3 @@ export markdown files for [Gridea](https://gridea.dev/)-like blog side, supporti
 - only download files in notion, external links will be ignored.
 - for database, only download pages in the database.
 - children blocks in callouts will be ignored, simple style is better.
-
-```
-
-```
