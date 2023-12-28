@@ -1,5 +1,6 @@
 import os
 import time
+import uuid
 
 from blocks import client_api
 from blocks.block import Block
@@ -232,6 +233,9 @@ def transImage(block: Block, level=0):
     # notion file类型, 在 ufile.cur_dir 下保存文件
     # filepath = downloadFile(image['url'], "image")
     filename = image['url'].split("?")[0].split("/")[-1]
+    # 使用 timestamp 生成文件名+后缀
+    filename = str(time.time()) + '-' + str(uuid.uuid4()) + \
+        "-" + filename
     # 加入下载列表
     ufile.download_list.put({
         "url": image['url'],
@@ -266,6 +270,8 @@ def transVideo(block: Block, level=0):
     # notion file类型, 在 ufile.cur_dir 下保存文件
     # filepath = downloadFile(url, "video")
     filename = url.split("?")[0].split("/")[-1]
+    filename = str(time.time()) + '-' + str(uuid.uuid4()) + \
+        "-" + filename
     # 加入下载列表
     ufile.download_list.put({
         "url": url,
@@ -340,6 +346,8 @@ def transFile(block: Block, level=0):
     # notion file
     # filepath = downloadFile(file['url'], "file")
     # 加入下载列表
+    filename = str(time.time()) + '-' + str(uuid.uuid4()) + \
+        "-" + filename
     ufile.download_list.put({
         "url": file['url'],
         "path": ufile.cur_dir,
@@ -357,6 +365,8 @@ def transPdf(block: Block, level=0):
     # notion file
     # filepath = downloadFile(pdf['url'], "file")  # pdf
     # 加入下载列表
+    filename = str(time.time()) + '-' + str(uuid.uuid4()) + \
+        "-" + filename
     ufile.download_list.put({
         "url": pdf['url'],
         "path": ufile.cur_dir,
@@ -373,6 +383,8 @@ def transAudio(block: Block, level=0):
     # notion file
     # filepath = downloadFile(audio['url'], "file")  # audio
     # 加入下载列表
+    filename = str(time.time()) + '-' + str(uuid.uuid4()) + \
+        "-" + filename
     ufile.download_list.put({
         "url": audio['url'],
         "path": ufile.cur_dir,
@@ -473,6 +485,8 @@ def get_page_meta(page: Page):
         else:
             # 加入下载列表
             filename = page.cover['file']['url'].split("?")[0].split("/")[-1]
+            filename = str(time.time()) + '-' + str(uuid.uuid4()) + \
+                "-" + filename
             ufile.download_list.put({
                 "url": page.cover['file']['url'],
                 "path": ufile.cur_dir,
@@ -487,6 +501,8 @@ def get_page_meta(page: Page):
             meta["icon"] = page.icon['emoji']
         else:
             filename = page.icon['file']['url'].split("?")[0].split("/")[-1]
+            filename = str(time.time()) + '-' + str(uuid.uuid4()) + \
+                "-" + filename
             ufile.download_list.put({
                 "url": page.icon['file']['url'],
                 "path": ufile.cur_dir,
