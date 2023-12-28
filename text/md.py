@@ -46,16 +46,14 @@ def md_render(rich_text: list):
             cur = mapper["m"].format(text=cur)
 
         # common annotations
-        # if chunk['annotations']['code']:
-        #     cur = mapper["c"].format(text=cur)
+        if chunk['annotations']['code']:
+            cur = mapper["c"].format(text=cur)
         if chunk['annotations']['strikethrough']:
             cur = mapper["s"].format(text=cur)
         if chunk['annotations']['bold']:
             cur = mapper["b"].format(text=cur)
         if chunk['annotations']['italic']:
             cur = mapper["i"].format(text=cur)
-        if chunk['annotations']['code']:
-            cur = mapper["c"].format(text=cur)
         if chunk['annotations']['underline']:
             cur = mapper["u"].format(text=cur)
         color = chunk['annotations']['color']
@@ -96,16 +94,14 @@ def html_render(rich_text: list):
         # if chunk["type"] == "equation":
         #     # plaintext
         #     pass
-        # if chunk['annotations']['code']:
-        #     cur = "<code>{}</code>".format(cur)
+        if chunk['annotations']['code']:
+            cur = "<code>{}</code>".format(cur)
         if chunk['annotations']['strikethrough']:
             cur = "<del>{}</del>".format(cur)
         if chunk['annotations']['bold']:
             cur = "<strong>{}</strong>".format(cur)
         if chunk['annotations']['italic']:
             cur = "<em>{}</em>".format(cur)
-        if chunk['annotations']['code']:
-            cur = "<code>{}</code>".format(cur)
         if chunk['annotations']['underline']:
             cur = "<u>{}</u>".format(cur)
         color = chunk['annotations']['color']

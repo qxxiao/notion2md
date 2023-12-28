@@ -1,7 +1,7 @@
 
 # common block as block, page, database
 # 注意不表示一种类型，只是共用的属性
-# 上层类型有: block通用块(包括 chil_page块， chil_database块); page页面, database数据库
+# 上层类型有: block通用块(包括 child_page块， child_database块); page页面, database数据库
 
 from utils.time import formatTime
 
