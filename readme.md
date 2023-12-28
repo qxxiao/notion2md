@@ -36,7 +36,20 @@ pages are saved to **notion2md_files dir**, default only download files storaged
 
 ## surpported
 
-export markdown files for [Gridea](https://gridea.dev/)-like blog side, supporting properties of notion database pages eg. Tags, Cover.
+export markdown files for [Gridea](https://gridea.dev/)-like blog side, supporting properties of notion database pages eg. Tags, Cover in front yaml.
+
+```txt
+"url": page.url
+"title": page.title
+"cover": page cover(None)
+"icon": page icon(None)
+"created": page created time
+"last_edited": page last edited time
+# --------for database subpage
+"tags": page tags[array]
+"categories": page categories
+"desc": page description
+```
 
 - [x] normal block(header,list,code,quote,...)
 - [x] link page/sub page
@@ -53,3 +66,6 @@ export markdown files for [Gridea](https://gridea.dev/)-like blog side, supporti
 - for database, only download pages in the database.
 - children blocks in callouts will be ignored, simple style is better.
 
+```
+
+```
